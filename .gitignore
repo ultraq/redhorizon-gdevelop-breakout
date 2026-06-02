@@ -1,4 +1,5 @@
 /.gradle
 /.idea
+/breakout-assets
 /build
 imgui.ini
