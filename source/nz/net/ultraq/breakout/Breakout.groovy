@@ -17,12 +17,7 @@
 package nz.net.ultraq.breakout
 
 import nz.net.ultraq.redhorizon.engine.Engine
-import nz.net.ultraq.redhorizon.engine.debug.DebugEverythingBinding
-import nz.net.ultraq.redhorizon.engine.debug.DebugStore
 import nz.net.ultraq.redhorizon.engine.graphics.GraphicsSystem
-import nz.net.ultraq.redhorizon.engine.graphics.GridLines
-import nz.net.ultraq.redhorizon.engine.graphics.imgui.LogPanel
-import nz.net.ultraq.redhorizon.engine.graphics.imgui.NodeList
 import nz.net.ultraq.redhorizon.engine.input.InputSystem
 import nz.net.ultraq.redhorizon.engine.physics.CollisionSystem
 import nz.net.ultraq.redhorizon.engine.scene.SceneUpdateSystem
@@ -33,15 +28,12 @@ import nz.net.ultraq.redhorizon.engine.utilities.ResourceManager
 import nz.net.ultraq.redhorizon.graphics.Colour
 import nz.net.ultraq.redhorizon.graphics.Framebuffer
 import nz.net.ultraq.redhorizon.graphics.Window
-import nz.net.ultraq.redhorizon.graphics.imgui.DebugOverlay
 import nz.net.ultraq.redhorizon.graphics.opengl.BasicShader
 import nz.net.ultraq.redhorizon.graphics.opengl.OpenGLFramebuffer
 import nz.net.ultraq.redhorizon.graphics.opengl.OpenGLWindow
 import nz.net.ultraq.redhorizon.input.InputEventHandler
-import nz.net.ultraq.redhorizon.scenegraph.Node
 import static nz.net.ultraq.breakout.ScopedValues.*
 
-import org.joml.primitives.Rectanglef
 import org.lwjgl.system.Configuration
 import picocli.CommandLine
 import picocli.CommandLine.Command
@@ -62,8 +54,6 @@ class Breakout implements Runnable {
 		System.exit(new CommandLine(new Breakout()).execute(args))
 	}
 
-	private static final Colour LIGHT_GREY = new Colour('Light grey', 0.85f, 0.85f, 0.85f, 1f)
-
 	private Window window
 	private Framebuffer framebuffer
 	private BasicShader shader
@@ -75,12 +65,12 @@ class Breakout implements Runnable {
 
 		try {
 			// Init devices
-			window = new OpenGLWindow(960, 540, 'Breakout')
+			window = new OpenGLWindow(640, 360, 'Breakout')
 				.centerToScreen()
 				.scaleToFit()
 				.withBackgroundColour(Colour.BLACK)
 				.withVSync(true)
-			framebuffer = new OpenGLFramebuffer(1920, 1080)
+			framebuffer = new OpenGLFramebuffer(640, 360)
 			shader = new BasicShader()
 			var inputEventHandler = new InputEventHandler()
 				.addInputSource(window)
@@ -95,29 +85,7 @@ class Breakout implements Runnable {
 
 					// Init scene and systems
 					scene = new BreakoutScene().tap {
-						addChild(new DebugStore())
-						addChild(
-							new GridLines(new Rectanglef(0f, 0f, 1920f, 1080f).center(), 100f, LIGHT_GREY, Colour.GREY)
-								.withName('Grid lines')
-								.disable())
-						var debugOverlay = new DebugOverlay()
-							.withCursorTracking(this.window, camera)
-							.withProfilingLogging()
-							.disable()
-						var nodeListComponent = new NodeList(it)
-							.disable()
-						var logPanelComponent = new LogPanel()
-							.disable()
-						addChild(new Node()
-							.addChild(debugOverlay)
-							.addChild(nodeListComponent)
-							.addChild(logPanelComponent)
-							.withName('Debug UI'))
-
-						var debugEverythingBinding = new DebugEverythingBinding(it)
-						inputEventHandler
-							.addImGuiOverlayBinding([debugOverlay])
-							.addInputBinding(debugEverythingBinding)
+						addDebugComponents(window, camera, inputEventHandler)
 					}
 					var engine = new Engine()
 						.addSystem(new InputSystem(inputEventHandler))
