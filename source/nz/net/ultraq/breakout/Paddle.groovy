@@ -16,28 +16,25 @@
 
 package nz.net.ultraq.breakout
 
-import nz.net.ultraq.redhorizon.graphics.Camera
-import nz.net.ultraq.redhorizon.scenegraph.Scene
-import static nz.net.ultraq.breakout.ScopedValues.WINDOW
+import nz.net.ultraq.redhorizon.graphics.Sprite
+import nz.net.ultraq.redhorizon.scenegraph.Node
+import static nz.net.ultraq.breakout.ScopedValues.RESOURCE_MANAGER
 
 /**
- * Scene setup for the Breakout game.
+ * The player/paddle character.
  *
  * @author Emanuel Rabina
  */
-class BreakoutScene extends Scene {
-
-	final Camera camera
-	final Paddle paddle
+class Paddle extends Node<Paddle> {
 
 	/**
-	 * Constructor, create a new scene.
+	 * Constructor, set up the paddle entity.
 	 */
-	BreakoutScene() {
+	Paddle() {
 
-		var window = WINDOW.get()
-
-		camera = addAndReturnChild(new Camera(1280, 720, window))
-		paddle = addAndReturnChild(new Paddle())
+		var resourceManager = RESOURCE_MANAGER.get()
+		var paddleImage = resourceManager.loadImage('paddle.png')
+		addChild(new Sprite(paddleImage))
+			.translate(0f, -330f)
 	}
 }
