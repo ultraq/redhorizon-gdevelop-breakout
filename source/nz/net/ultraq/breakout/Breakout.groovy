@@ -65,12 +65,12 @@ class Breakout implements Runnable {
 
 		try {
 			// Init devices
-			window = new OpenGLWindow(640, 360, 'Breakout')
+			window = new OpenGLWindow(BreakoutScene.WIDTH, BreakoutScene.HEIGHT, 'Breakout')
 				.centerToScreen()
 				.scaleToFit()
 				.withBackgroundColour(Colour.BLACK)
 				.withVSync(true)
-			framebuffer = new OpenGLFramebuffer(640, 360)
+			framebuffer = new OpenGLFramebuffer(BreakoutScene.WIDTH, BreakoutScene.HEIGHT)
 			shader = new BasicShader()
 			var inputEventHandler = new InputEventHandler()
 				.addInputSource(window)

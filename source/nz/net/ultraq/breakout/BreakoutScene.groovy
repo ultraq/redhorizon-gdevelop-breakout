@@ -27,6 +27,9 @@ import static nz.net.ultraq.breakout.ScopedValues.WINDOW
  */
 class BreakoutScene extends Scene {
 
+	static final int WIDTH = 800
+	static final int HEIGHT = 500
+
 	final Camera camera
 	final Paddle paddle
 
@@ -37,7 +40,7 @@ class BreakoutScene extends Scene {
 
 		var window = WINDOW.get()
 
-		camera = addAndReturnChild(new Camera(1280, 720, window))
+		camera = addAndReturnChild(new Camera(WIDTH, HEIGHT, window))
 		paddle = addAndReturnChild(new Paddle())
 	}
 }

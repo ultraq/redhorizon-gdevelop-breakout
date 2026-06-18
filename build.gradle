@@ -49,7 +49,6 @@ configure {
 }
 
 configurations.configureEach {
-	exclude group: 'org.jetbrains.kotlin'
 	resolutionStrategy {
 		cacheChangingModulesFor 0, 'seconds'
 		cacheDynamicVersionsFor 0, 'seconds'

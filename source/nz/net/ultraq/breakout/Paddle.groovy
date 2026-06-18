@@ -16,9 +16,13 @@
 
 package nz.net.ultraq.breakout
 
+import nz.net.ultraq.redhorizon.engine.scripts.Script
+import nz.net.ultraq.redhorizon.engine.scripts.ScriptNode
 import nz.net.ultraq.redhorizon.graphics.Sprite
 import nz.net.ultraq.redhorizon.scenegraph.Node
 import static nz.net.ultraq.breakout.ScopedValues.RESOURCE_MANAGER
+
+import static org.lwjgl.glfw.GLFW.*
 
 /**
  * The player/paddle character.
@@ -27,14 +31,58 @@ import static nz.net.ultraq.breakout.ScopedValues.RESOURCE_MANAGER
  */
 class Paddle extends Node<Paddle> {
 
+	static final float SPEED = 300f
+
+	private final float width
+	private final float height
+
 	/**
 	 * Constructor, set up the paddle entity.
 	 */
 	Paddle() {
 
 		var resourceManager = RESOURCE_MANAGER.get()
+
 		var paddleImage = resourceManager.loadImage('paddle.png')
+		width = paddleImage.width
+		height = paddleImage.height
 		addChild(new Sprite(paddleImage))
-			.translate(0f, -330f)
+			.translate(0f, -(BreakoutScene.HEIGHT / 2f) + 10f as float)
+
+		addChild(new ScriptNode(PaddleScript))
+	}
+
+	/**
+	 * Paddle movement and behaviour.
+	 */
+	static class PaddleScript extends Script<Paddle> {
+
+		private float leftBounds
+		private float rightBounds
+
+		@Override
+		void init() {
+
+			leftBounds = -((BreakoutScene.WIDTH / 2f) - (node.width / 2f)) as float
+			rightBounds = -leftBounds
+		}
+
+		@Override
+		void update(float delta) {
+
+			var velocity = 0f
+
+			if (input.keyPressed(GLFW_KEY_LEFT)) {
+				velocity -= SPEED
+			}
+			else if (input.keyPressed(GLFW_KEY_RIGHT)) {
+				velocity += SPEED
+			}
+
+			if (velocity) {
+				var position = node.position
+				node.setPosition(Math.clamp(position.x() + velocity * delta as float, leftBounds, rightBounds), position.y())
+			}
+		}
 	}
 }
