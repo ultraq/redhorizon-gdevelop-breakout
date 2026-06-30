@@ -47,8 +47,6 @@ class Paddle extends Node<Paddle> {
 		width = paddleImage.width
 		height = paddleImage.height
 		addChild(new Sprite(paddleImage))
-			.translate(0f, -(BreakoutScene.HEIGHT / 2f) + 10f as float)
-
 		addChild(new ScriptNode(PaddleScript))
 	}
 
@@ -70,18 +68,20 @@ class Paddle extends Node<Paddle> {
 		@Override
 		void update(float delta) {
 
-			var velocity = 0f
+			var vector = 0f
 
-			if (input.keyPressed(GLFW_KEY_LEFT)) {
-				velocity -= SPEED
+			if (input.keyPressed(GLFW_KEY_LEFT) || input.keyPressed(GLFW_KEY_A)) {
+				vector = -1f
 			}
-			else if (input.keyPressed(GLFW_KEY_RIGHT)) {
-				velocity += SPEED
+			else if (input.keyPressed(GLFW_KEY_RIGHT) || input.keyPressed(GLFW_KEY_D)) {
+				vector = 1f
 			}
 
-			if (velocity) {
+			if (vector) {
 				var position = node.position
-				node.setPosition(Math.clamp(position.x() + velocity * delta as float, leftBounds, rightBounds), position.y())
+				node.setPosition(
+					Math.clamp(position.x() + vector * SPEED * delta as float, leftBounds, rightBounds),
+					position.y())
 			}
 		}
 	}

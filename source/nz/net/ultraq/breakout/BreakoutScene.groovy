@@ -40,7 +40,8 @@ class BreakoutScene extends Scene {
 
 		var window = WINDOW.get()
 
-		camera = addAndReturnChild(new Camera(WIDTH, HEIGHT, window))
-		paddle = addAndReturnChild(new Paddle())
+		camera = addAndReturnChild(new Camera(WIDTH, HEIGHT, window::getViewport))
+		paddle = addAndReturnChild(new Paddle()
+			.translate(0f, -HEIGHT / 2f + 10f as float))
 	}
 }
