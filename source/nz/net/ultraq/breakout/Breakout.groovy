@@ -16,9 +16,13 @@
 
 package nz.net.ultraq.breakout
 
+import nz.net.ultraq.redhorizon.engine.scripts.Script
+import nz.net.ultraq.redhorizon.engine.scripts.ScriptNode
 import nz.net.ultraq.redhorizon.runtime.Application
 import nz.net.ultraq.redhorizon.runtime.Runtime
 import nz.net.ultraq.redhorizon.scenegraph.Scene
+
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_SPACE
 
 /**
  * Entry point to the Breakout game.
@@ -53,5 +57,36 @@ class Breakout extends Application {
 
 		return scene
 			.addChild(new Paddle().translate(0f, -HEIGHT / 2f + 10f as float))
+			.addChild(new Ball())
+			.addChild(new ScriptNode(StartGameScript))
+	}
+
+	/**
+	 * Script for beginning the game.
+	 */
+	static class StartGameScript extends Script {
+
+		private boolean gameStarted
+		private Ball ball
+
+		@Override
+		void init() {
+
+			ball = node.scene.findByType(Ball)
+		}
+
+		@Override
+		void update(float delta) {
+
+			// Start the game by sending the ball in a random direction within 45
+			// degress of straight down
+			if (!gameStarted && input.keyPressed(GLFW_KEY_SPACE, true)) {
+				ball.setPosition(0f, 0f)
+
+				var randomDirectionRadians = Math.toRadians((Math.random() * 90) + 225) as float
+				ball.vector.set(Math.cos(randomDirectionRadians), Math.sin(randomDirectionRadians))
+				gameStarted = true
+			}
+		}
 	}
 }
