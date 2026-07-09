@@ -16,100 +16,42 @@
 
 package nz.net.ultraq.breakout
 
-import nz.net.ultraq.redhorizon.engine.Engine
-import nz.net.ultraq.redhorizon.engine.graphics.GraphicsSystem
-import nz.net.ultraq.redhorizon.engine.input.InputSystem
-import nz.net.ultraq.redhorizon.engine.physics.CollisionSystem
-import nz.net.ultraq.redhorizon.engine.scene.SceneUpdateSystem
-import nz.net.ultraq.redhorizon.engine.scripts.ScriptEngine
-import nz.net.ultraq.redhorizon.engine.scripts.ScriptSystem
-import nz.net.ultraq.redhorizon.engine.utilities.DeltaTimer
-import nz.net.ultraq.redhorizon.engine.utilities.ResourceManager
-import nz.net.ultraq.redhorizon.graphics.Colour
-import nz.net.ultraq.redhorizon.graphics.Framebuffer
-import nz.net.ultraq.redhorizon.graphics.Window
-import nz.net.ultraq.redhorizon.graphics.opengl.BasicShader
-import nz.net.ultraq.redhorizon.graphics.opengl.OpenGLFramebuffer
-import nz.net.ultraq.redhorizon.graphics.opengl.OpenGLWindow
-import nz.net.ultraq.redhorizon.input.InputEventHandler
-import static nz.net.ultraq.breakout.ScopedValues.*
-
-import org.lwjgl.system.Configuration
-import picocli.CommandLine
-import picocli.CommandLine.Command
+import nz.net.ultraq.redhorizon.runtime.Application
+import nz.net.ultraq.redhorizon.runtime.Runtime
+import nz.net.ultraq.redhorizon.scenegraph.Scene
 
 /**
  * Entry point to the Breakout game.
  *
  * @author Emanuel Rabina
  */
-@Command(name = 'breakout')
-class Breakout implements Runnable {
+class Breakout extends Application {
 
-	static {
-		Configuration.STACK_SIZE.set(10240)
-	}
+	static final int WIDTH = 800
+	static final int HEIGHT = 500
 
 	static void main(String[] args) {
-		System.exit(new CommandLine(new Breakout()).execute(args))
+
+		System.exit(new Runtime(new Breakout()).execute(
+			"--window-width=${WIDTH}",
+			"--window-height=${HEIGHT}",
+			'--resource-manager-path-prefix=nz/net/ultraq/breakout/assets',
+			*args
+		))
 	}
 
-	private Window window
-	private Framebuffer framebuffer
-	private BasicShader shader
-	private ResourceManager resourceManager
-	private BreakoutScene scene
+	/**
+	 * Constructor, create a new Breakout game.
+	 */
+	Breakout() {
+
+		super('Breakout', '0.1.0')
+	}
 
 	@Override
-	void run() {
+	protected Scene configureScene(Scene scene) {
 
-		try {
-			// Init devices
-			window = new OpenGLWindow(BreakoutScene.WIDTH, BreakoutScene.HEIGHT, 'Breakout')
-				.centerToScreen()
-				.scaleToFit()
-				.withBackgroundColour(Colour.BLACK)
-				.withVSync(true)
-			framebuffer = new OpenGLFramebuffer(BreakoutScene.WIDTH, BreakoutScene.HEIGHT)
-			shader = new BasicShader()
-			var inputEventHandler = new InputEventHandler()
-				.addInputSource(window)
-				.addEscapeToCloseBinding(window)
-				.addVSyncBinding(window)
-			resourceManager = new ResourceManager('nz/net/ultraq/breakout/assets/')
-
-			ScopedValue
-				.where(WINDOW, window)
-				.where(RESOURCE_MANAGER, resourceManager)
-				.run(() -> {
-
-					// Init scene and systems
-					scene = new BreakoutScene().tap {
-						addDebugComponents(window, camera, inputEventHandler)
-					}
-					var engine = new Engine()
-						.addSystem(new InputSystem(inputEventHandler))
-						.addSystem(new ScriptSystem(new ScriptEngine('.'), inputEventHandler))
-						.addSystem(new CollisionSystem())
-						.addSystem(new GraphicsSystem(window, framebuffer, shader))
-						.addSystem(new SceneUpdateSystem())
-						.withScene(scene)
-
-					// Game loop
-					window.show()
-					var deltaTimer = new DeltaTimer()
-					while (!window.shouldClose()) {
-						engine.update(deltaTimer.deltaTime())
-						Thread.yield()
-					}
-				})
-		}
-		finally {
-			scene?.close()
-			resourceManager?.close()
-			shader?.close()
-			framebuffer?.close()
-			window?.close()
-		}
+		return scene
+			.addChild(new Paddle().translate(0f, -HEIGHT / 2f + 10f as float))
 	}
 }

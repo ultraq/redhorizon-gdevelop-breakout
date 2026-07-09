@@ -20,7 +20,7 @@ import nz.net.ultraq.redhorizon.engine.scripts.Script
 import nz.net.ultraq.redhorizon.engine.scripts.ScriptNode
 import nz.net.ultraq.redhorizon.graphics.Sprite
 import nz.net.ultraq.redhorizon.scenegraph.Node
-import static nz.net.ultraq.breakout.ScopedValues.RESOURCE_MANAGER
+import static nz.net.ultraq.redhorizon.runtime.ScopedValues.RESOURCE_MANAGER
 
 import static org.lwjgl.glfw.GLFW.*
 
@@ -61,7 +61,7 @@ class Paddle extends Node<Paddle> {
 		@Override
 		void init() {
 
-			leftBounds = -((BreakoutScene.WIDTH / 2f) - (node.width / 2f)) as float
+			leftBounds = -((Breakout.WIDTH / 2f) - (node.width / 2f)) as float
 			rightBounds = -leftBounds
 		}
 
