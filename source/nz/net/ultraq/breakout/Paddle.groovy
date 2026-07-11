@@ -16,12 +16,16 @@
 
 package nz.net.ultraq.breakout
 
+import nz.net.ultraq.redhorizon.engine.physics.BoxCollider
+import nz.net.ultraq.redhorizon.engine.physics.CollisionEvent
 import nz.net.ultraq.redhorizon.engine.scripts.Script
 import nz.net.ultraq.redhorizon.engine.scripts.ScriptNode
 import nz.net.ultraq.redhorizon.graphics.Sprite
 import nz.net.ultraq.redhorizon.scenegraph.Node
 import static nz.net.ultraq.redhorizon.runtime.ScopedValues.RESOURCE_MANAGER
 
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import static org.lwjgl.glfw.GLFW.*
 
 /**
@@ -31,6 +35,7 @@ import static org.lwjgl.glfw.GLFW.*
  */
 class Paddle extends Node<Paddle> {
 
+	private static final Logger logger = LoggerFactory.getLogger(Paddle)
 	static final float SPEED = 300f
 
 	private final float width
@@ -47,6 +52,7 @@ class Paddle extends Node<Paddle> {
 		width = paddleImage.width
 		height = paddleImage.height
 		addChild(new Sprite(paddleImage))
+		addChild(new BoxCollider(width, height))
 		addChild(new ScriptNode(PaddleScript))
 	}
 
@@ -63,6 +69,10 @@ class Paddle extends Node<Paddle> {
 
 			leftBounds = -((Breakout.WIDTH / 2f) - (node.width / 2f)) as float
 			rightBounds = -leftBounds
+
+			node.findByType(BoxCollider).on(CollisionEvent) { event ->
+				logger.debug("Collision with {}", event.otherCollider().parent)
+			}
 		}
 
 		@Override
