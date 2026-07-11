@@ -65,6 +65,10 @@ class Ball extends Node<Ball> {
 		private float halfWidth
 		private float halfHeight
 
+		// Flag to prevent executing the wall-bounce code multiple times because the
+		// ball ends up over the edges for multiple frames
+		private boolean bounced = false
+
 		@Override
 		void init() {
 
@@ -88,15 +92,30 @@ class Ball extends Node<Ball> {
 		@Override
 		void update(float delta) {
 
-			// Check if the ball is going out the top/left/right of the screen
 			var ballPosition = node.position
-			if ((ballPosition.x() - halfWidth < Breakout.SCREEN_BOUNDS.minX) ||
-				(ballPosition.x() + halfWidth > Breakout.SCREEN_BOUNDS.maxX)) {
-				node.vector.x *= -1f
+
+			// Reset the bounce flag once the ball is within the screen again
+			if (bounced) {
+				if ((ballPosition.x() - halfWidth > Breakout.SCREEN_BOUNDS.minX) &&
+					(ballPosition.x() + halfWidth < Breakout.SCREEN_BOUNDS.maxX) &&
+					(ballPosition.y() - halfHeight > Breakout.SCREEN_BOUNDS.minY) &&
+					(ballPosition.y() + halfHeight < Breakout.SCREEN_BOUNDS.maxY)) {
+					bounced = false
+				}
 			}
-			if ((ballPosition.y() + halfHeight > Breakout.SCREEN_BOUNDS.maxY) ||
-				(ballPosition.y() - halfHeight < Breakout.SCREEN_BOUNDS.minY)) {
-				node.vector.y *= -1f
+
+			// Check if the ball is going out the top/left/right of the screen
+			if (!bounced) {
+				if ((ballPosition.x() - halfWidth < Breakout.SCREEN_BOUNDS.minX) ||
+					(ballPosition.x() + halfWidth > Breakout.SCREEN_BOUNDS.maxX)) {
+					node.vector.x *= -1f
+					bounced = true
+				}
+				if ((ballPosition.y() - halfHeight < Breakout.SCREEN_BOUNDS.minY) ||
+					(ballPosition.y() + halfHeight > Breakout.SCREEN_BOUNDS.maxY)) {
+					node.vector.y *= -1f
+					bounced = true
+				}
 			}
 
 			// Move the ball along its current trajectory

@@ -30,15 +30,13 @@ import org.joml.primitives.Rectanglef
 class Breakout extends Application {
 
 	public static final int WIDTH = 800
-	public static final int HEIGHT = 500
+	public static final int HEIGHT = 600
 	public static final Rectanglef SCREEN_BOUNDS = new Rectanglef(0, 0, WIDTH, HEIGHT)
 		.translate(-WIDTH / 2f as float, -HEIGHT / 2f as float)
 
 	static void main(String[] args) {
 
 		System.exit(new Runtime(new Breakout()).execute(
-			"--window-width=${WIDTH}",
-			"--window-height=${HEIGHT}",
 			'--resource-manager-path-prefix=nz/net/ultraq/breakout/assets',
 			*args
 		))
