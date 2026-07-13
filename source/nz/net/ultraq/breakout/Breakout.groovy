@@ -29,14 +29,19 @@ import org.joml.primitives.Rectanglef
  */
 class Breakout extends Application {
 
-	public static final int WIDTH = 800
-	public static final int HEIGHT = 600
+	public static final int WIDTH = 960
+	public static final int HEIGHT = 540
 	public static final Rectanglef SCREEN_BOUNDS = new Rectanglef(0, 0, WIDTH, HEIGHT)
 		.translate(-WIDTH / 2f as float, -HEIGHT / 2f as float)
 
 	static void main(String[] args) {
 
 		System.exit(new Runtime(new Breakout()).execute(
+			'--window-background-colour=#344055',
+			"--window-width=${WIDTH}",
+			"--window-height=${HEIGHT}",
+			"--framebuffer-width=${WIDTH}",
+			"--framebuffer-height=${HEIGHT}",
 			'--simulation-update-frequency=120',
 			'--resource-manager-path-prefix=nz/net/ultraq/breakout/assets',
 			*args
@@ -48,14 +53,15 @@ class Breakout extends Application {
 	 */
 	Breakout() {
 
-		super('Breakout', '0.1.0')
+		super('Breakout', '0.1.0-dev')
 	}
 
 	@Override
 	protected Scene configureScene(Scene scene) {
 
 		return scene
-			.addChild(new Paddle().translate(0f, -HEIGHT / 2f + 10f as float))
+			.addChild(new PaddleLine().translate(0f, -HEIGHT / 2f + 20f as float).scale(0.5f))
+			.addChild(new Paddle().translate(0f, -HEIGHT / 2f + 20f as float))
 			.addChild(new Ball())
 			.addChild(new GameFlowController())
 	}
