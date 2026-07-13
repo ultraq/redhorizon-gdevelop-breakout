@@ -79,9 +79,7 @@ class Ball extends Node<Ball> {
 			node.findByType(BoxCollider).on(CollisionEvent) { event ->
 				var otherObject = event.otherCollider().parent
 				if (otherObject instanceof Paddle) {
-					scene.queueUpdate { ->
-						node.vector.y *= -1f
-					}
+					node.vector.y *= -1f
 				}
 				else {
 					logger.debug("Unhandled collision with {}", otherObject)

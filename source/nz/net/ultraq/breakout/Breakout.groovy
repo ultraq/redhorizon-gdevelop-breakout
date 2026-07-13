@@ -37,6 +37,7 @@ class Breakout extends Application {
 	static void main(String[] args) {
 
 		System.exit(new Runtime(new Breakout()).execute(
+			'--simulation-update-frequency=120',
 			'--resource-manager-path-prefix=nz/net/ultraq/breakout/assets',
 			*args
 		))
