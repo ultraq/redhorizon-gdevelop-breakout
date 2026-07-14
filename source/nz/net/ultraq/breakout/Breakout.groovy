@@ -60,9 +60,10 @@ class Breakout extends Application {
 	protected Scene configureScene(Scene scene) {
 
 		return scene
+			.addChild(new Bricks())
+			.addChild(new Ball())
 			.addChild(new PaddleLine().translate(0f, -HEIGHT / 2f + 20f as float).scale(0.5f))
 			.addChild(new Paddle().translate(0f, -HEIGHT / 2f + 20f as float))
-			.addChild(new Ball())
 			.addChild(new GameFlowController())
 	}
 }
