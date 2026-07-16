@@ -17,7 +17,7 @@
 package nz.net.ultraq.breakout
 
 import nz.net.ultraq.redhorizon.engine.physics.BoxCollider
-import nz.net.ultraq.redhorizon.engine.physics.CollisionEvent
+import nz.net.ultraq.redhorizon.engine.physics.CollisionStartEvent
 import nz.net.ultraq.redhorizon.engine.scripts.Script
 import nz.net.ultraq.redhorizon.engine.scripts.ScriptNode
 import nz.net.ultraq.redhorizon.graphics.Sprite
@@ -65,10 +65,6 @@ class Ball extends Node<Ball> {
 		private float halfWidth
 		private float halfHeight
 
-		// Flag to prevent executing the wall-bounce code multiple times because the
-		// ball ends up over the edges for multiple frames
-		private boolean bounced = false
-
 		@Override
 		void init() {
 
@@ -76,11 +72,58 @@ class Ball extends Node<Ball> {
 			halfWidth = node.width / 2f as float
 			halfHeight = node.height / 2f as float
 
-			node.findByType(BoxCollider).on(CollisionEvent) { event ->
+			node.findByType(BoxCollider).on(CollisionStartEvent) { event ->
 				var otherObject = event.otherCollider().parent
-				if (otherObject instanceof Paddle) {
-					node.vector.y *= -1f
+
+				// Send the ball back into the middle when hitting an edge
+				if (otherObject instanceof ScreenEdges) {
+					var otherCollider = event.otherCollider()
+					// TODO: Lose a life when colliding with the bottom edge
+					if (otherCollider.name == 'Top edge' || otherCollider.name == 'Bottom edge') {
+						node.vector.y *= -1f
+					}
+					else if (otherCollider.name == 'Left edge' || otherCollider.name == 'Right edge') {
+						node.vector.x *= -1f
+					}
 				}
+
+				else if (otherObject instanceof Paddle || otherObject instanceof Brick) {
+					// Figure out which edge was collided with so we know which way to bounce.
+					// Find which edge the center of the box was closest to.
+					// TODO: Allow changing the ball's trajectory based on where it hits the paddle
+					var ballPosition = node.position
+					var otherBounds = ((BoxCollider)event.otherCollider()).bounds
+
+					var distanceFromLeft = Math.abs(ballPosition.x() - otherBounds.minX)
+					var distanceFromRight = Math.abs(ballPosition.x() - otherBounds.maxX)
+					var horizontalDistance = Math.min(distanceFromLeft, distanceFromRight)
+
+					var distanceFromTop = Math.abs(ballPosition.y() - otherBounds.maxY)
+					var distanceFromBottom = Math.abs(ballPosition.y() - otherBounds.minY)
+					var verticalDistance = Math.min(distanceFromTop, distanceFromBottom)
+
+					if (horizontalDistance <= verticalDistance) {
+						if (distanceFromLeft < distanceFromRight && node.vector.x < 0 ||
+							distanceFromRight < distanceFromLeft && node.vector.x > 0) {
+							node.vector.x *= -1f
+						}
+					}
+					if (verticalDistance <= horizontalDistance) {
+						if (distanceFromTop < distanceFromBottom && node.vector.y < 0 ||
+							distanceFromBottom < distanceFromTop && node.vector.y > 0) {
+							node.vector.y *= -1f
+						}
+					}
+
+					if (otherObject instanceof Brick) {
+						otherObject.disable()
+						scene.queueUpdate { ->
+							otherObject.remove()
+						}
+					}
+				}
+
+				// Log anything else for now
 				else {
 					logger.debug("Unhandled collision with {}", otherObject)
 				}
@@ -89,32 +132,6 @@ class Ball extends Node<Ball> {
 
 		@Override
 		void update(float delta) {
-
-			var ballPosition = node.position
-
-			// Reset the bounce flag once the ball is within the screen again
-			if (bounced) {
-				if ((ballPosition.x() - halfWidth > Breakout.SCREEN_BOUNDS.minX) &&
-					(ballPosition.x() + halfWidth < Breakout.SCREEN_BOUNDS.maxX) &&
-					(ballPosition.y() - halfHeight > Breakout.SCREEN_BOUNDS.minY) &&
-					(ballPosition.y() + halfHeight < Breakout.SCREEN_BOUNDS.maxY)) {
-					bounced = false
-				}
-			}
-
-			// Check if the ball is going out the top/left/right of the screen
-			if (!bounced) {
-				if ((ballPosition.x() - halfWidth < Breakout.SCREEN_BOUNDS.minX) ||
-					(ballPosition.x() + halfWidth > Breakout.SCREEN_BOUNDS.maxX)) {
-					node.vector.x *= -1f
-					bounced = true
-				}
-				if ((ballPosition.y() - halfHeight < Breakout.SCREEN_BOUNDS.minY) ||
-					(ballPosition.y() + halfHeight > Breakout.SCREEN_BOUNDS.maxY)) {
-					node.vector.y *= -1f
-					bounced = true
-				}
-			}
 
 			// Move the ball along its current trajectory
 			if (node.vector) {

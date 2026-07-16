@@ -17,7 +17,6 @@
 package nz.net.ultraq.breakout
 
 import nz.net.ultraq.redhorizon.engine.physics.BoxCollider
-import nz.net.ultraq.redhorizon.engine.physics.CollisionEvent
 import nz.net.ultraq.redhorizon.engine.scripts.Script
 import nz.net.ultraq.redhorizon.engine.scripts.ScriptNode
 import nz.net.ultraq.redhorizon.graphics.Sprite
@@ -69,10 +68,6 @@ class Paddle extends Node<Paddle> {
 
 			leftBounds = -((Breakout.WIDTH / 2f) - (node.width / 2f)) as float
 			rightBounds = -leftBounds
-
-			node.findByType(BoxCollider).on(CollisionEvent) { event ->
-				logger.debug("Collision with {}", event.otherCollider().parent)
-			}
 		}
 
 		@Override
