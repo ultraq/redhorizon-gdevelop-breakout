@@ -38,7 +38,7 @@ class Ball extends Node<Ball> {
 
 	private static final Logger logger = LoggerFactory.getLogger(Ball)
 
-	static final float SPEED = 300f
+	static final float SPEED = 600f
 
 	final float width
 	final float height
@@ -73,11 +73,12 @@ class Ball extends Node<Ball> {
 			halfHeight = node.height / 2f as float
 
 			node.findByType(BoxCollider).on(CollisionStartEvent) { event ->
-				var otherObject = event.otherCollider().parent
+				var otherCollider = event.otherCollider()
+				var otherObject = otherCollider.parent
+				logger.debug('Collision between ball and {}', otherObject.name)
 
 				// Send the ball back into the middle when hitting an edge
 				if (otherObject instanceof ScreenEdges) {
-					var otherCollider = event.otherCollider()
 					// TODO: Lose a life when colliding with the bottom edge
 					if (otherCollider.name == 'Top edge' || otherCollider.name == 'Bottom edge') {
 						node.vector.y *= -1f
@@ -88,35 +89,23 @@ class Ball extends Node<Ball> {
 				}
 
 				else if (otherObject instanceof Paddle || otherObject instanceof Brick) {
-					// Figure out which edge was collided with so we know which way to bounce.
-					// Find which edge the center of the box was closest to.
+					// Figure out where the objects are relative to each other to know which way to bounce
 					// TODO: Allow changing the ball's trajectory based on where it hits the paddle
 					var ballPosition = node.position
-					var otherBounds = ((BoxCollider)event.otherCollider()).bounds
+					var otherBounds = ((BoxCollider)otherCollider).bounds
 
-					var distanceFromLeft = Math.abs(ballPosition.x() - otherBounds.minX)
-					var distanceFromRight = Math.abs(ballPosition.x() - otherBounds.maxX)
-					var horizontalDistance = Math.min(distanceFromLeft, distanceFromRight)
-
-					var distanceFromTop = Math.abs(ballPosition.y() - otherBounds.maxY)
-					var distanceFromBottom = Math.abs(ballPosition.y() - otherBounds.minY)
-					var verticalDistance = Math.min(distanceFromTop, distanceFromBottom)
-
-					if (horizontalDistance <= verticalDistance) {
-						if (distanceFromLeft < distanceFromRight && node.vector.x < 0 ||
-							distanceFromRight < distanceFromLeft && node.vector.x > 0) {
-							node.vector.x *= -1f
-						}
+					if ((ballPosition.x() < otherBounds.minX && node.vector.x > 0) ||
+						(ballPosition.x() > otherBounds.maxX && node.vector.x < 0)) {
+						node.vector.x *= -1f
+						logger.debug("Bounce horizontal")
 					}
-					if (verticalDistance <= horizontalDistance) {
-						if (distanceFromTop < distanceFromBottom && node.vector.y < 0 ||
-							distanceFromBottom < distanceFromTop && node.vector.y > 0) {
-							node.vector.y *= -1f
-						}
+					if ((ballPosition.y() < otherBounds.minY && node.vector.y > 0) ||
+						(ballPosition.y() > otherBounds.maxY && node.vector.y < 0)) {
+						node.vector.y *= -1f
+						logger.debug("Bounce vertical")
 					}
 
 					if (otherObject instanceof Brick) {
-						otherObject.disable()
 						scene.queueUpdate { ->
 							otherObject.remove()
 						}

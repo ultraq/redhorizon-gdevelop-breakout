@@ -20,8 +20,6 @@ import nz.net.ultraq.redhorizon.runtime.Application
 import nz.net.ultraq.redhorizon.runtime.Runtime
 import nz.net.ultraq.redhorizon.scenegraph.Scene
 
-import org.joml.primitives.Rectanglef
-
 /**
  * Entry point to the Breakout game.
  *
@@ -31,8 +29,6 @@ class Breakout extends Application {
 
 	public static final int WIDTH = 960
 	public static final int HEIGHT = 540
-	public static final Rectanglef SCREEN_BOUNDS = new Rectanglef(0, 0, WIDTH, HEIGHT)
-		.translate(-WIDTH / 2f as float, -HEIGHT / 2f as float)
 
 	static void main(String[] args) {
 
@@ -40,8 +36,8 @@ class Breakout extends Application {
 			'--window-background-colour=#344055',
 			"--window-width=${WIDTH}",
 			"--window-height=${HEIGHT}",
-			"--framebuffer-width=${WIDTH}",
-			"--framebuffer-height=${HEIGHT}",
+			"--framebuffer-width=${WIDTH * 2}",
+			"--framebuffer-height=${HEIGHT * 2}",
 			'--simulation-update-frequency=120',
 			'--resource-manager-path-prefix=nz/net/ultraq/breakout/assets',
 			*args

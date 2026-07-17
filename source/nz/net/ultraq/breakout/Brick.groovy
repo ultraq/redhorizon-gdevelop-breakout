@@ -30,6 +30,8 @@ import static nz.net.ultraq.redhorizon.runtime.ScopedValues.RESOURCE_MANAGER
  */
 class Brick extends Node<Brick> {
 
+	private static int brickCounter = 0
+
 	final int width
 	final int height
 
@@ -42,6 +44,7 @@ class Brick extends Node<Brick> {
 		addChild(new Sprite(brickImage))
 		addChild(new BoxCollider(width, height))
 		addChild(new ScriptNode(BrickScript))
+		withName("Brick ${brickCounter++}")
 	}
 
 	static class BrickScript extends Script<Brick> {

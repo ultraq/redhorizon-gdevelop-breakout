@@ -29,17 +29,42 @@ class Bricks extends Node<Bricks> {
 
 	Bricks() {
 
-		// TODO: Some kind of brick layout system?
-		var bricksAcross = 5
-		var brick = new Brick()
-		var totalWidth = (brick.width * bricksAcross) + (gap * (bricksAcross - 1))
+		createBricks()
+	}
 
-		var row = new Node()
-		bricksAcross.times { i ->
-			row.addChild(new Brick()
-				.translate(i * (brick.width + (i == 0 ? 0 : gap)) as float, Breakout.HEIGHT / 2f - 20f as float)
-			)
+	/**
+	 * Create the initial brick layout.
+	 */
+	private void createBricks() {
+
+		// TODO: Some kind of brick layout system?
+		var bricksX = 10
+		var bricksY = 4
+		var brick = new Brick()
+		var totalWidth = (brick.width * bricksX) + (gap * (bricksX - 1))
+
+		bricksY.times { y ->
+			var row = new Node()
+			bricksX.times { x ->
+				row.addChild(new Brick()
+					.translate(x * (brick.width + (x ? gap : 0)) as float, 0f)
+				)
+			}
+			addChild(row.translate(
+				(brick.width / 2) - (totalWidth / 2) as float,
+				(Breakout.HEIGHT / 2f) - (y * (brick.height + gap)) - brick.height as float
+			))
 		}
-		addChild(row.translate((brick.width / 2) - (totalWidth / 2) as float, 0f))
+	}
+
+	/**
+	 * Reset to the initial brick layout.
+	 */
+	void reset() {
+
+		scene.queueUpdate { ->
+			clear()
+			createBricks()
+		}
 	}
 }

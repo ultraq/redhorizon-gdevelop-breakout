@@ -20,6 +20,8 @@ import nz.net.ultraq.redhorizon.engine.scripts.Script
 import nz.net.ultraq.redhorizon.engine.scripts.ScriptNode
 import nz.net.ultraq.redhorizon.scenegraph.Node
 
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_SPACE
 
 /**
@@ -28,6 +30,8 @@ import static org.lwjgl.glfw.GLFW.GLFW_KEY_SPACE
  * @author Emanuel Rabina
  */
 class GameFlowController extends Node<GameFlowController> {
+
+	private static final Logger logger = LoggerFactory.getLogger(GameFlowController)
 
 	GameFlowController() {
 
@@ -38,11 +42,13 @@ class GameFlowController extends Node<GameFlowController> {
 
 		private boolean gameStarted
 		private Ball ball
+		private Bricks bricks
 
 		@Override
 		void init() {
 
 			ball = node.scene.findByType(Ball)
+			bricks = node.scene.findByType(Bricks)
 		}
 
 		@Override
@@ -50,12 +56,15 @@ class GameFlowController extends Node<GameFlowController> {
 
 			// Start the game by sending the ball in a random direction within 45
 			// degress of straight down
-			if (!gameStarted && input.keyPressed(GLFW_KEY_SPACE, true)) {
+			if (input.keyPressed(GLFW_KEY_SPACE, true)) {
+				logger.debug("Starting/Resetting")
+				if (gameStarted) {
+					bricks.reset()
+				}
 				ball.setPosition(0f, 0f)
-
 				var randomDirectionRadians = Math.toRadians((Math.random() * 90) + 225) as float
 				ball.vector.set(Math.cos(randomDirectionRadians), Math.sin(randomDirectionRadians))
-//				gameStarted = true
+				gameStarted = true
 			}
 		}
 	}
