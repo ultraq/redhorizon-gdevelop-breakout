@@ -16,6 +16,7 @@
 
 package nz.net.ultraq.breakout
 
+import nz.net.ultraq.redhorizon.engine.physics.MovementNode
 import nz.net.ultraq.redhorizon.engine.scripts.Script
 import nz.net.ultraq.redhorizon.engine.scripts.ScriptNode
 import nz.net.ultraq.redhorizon.scenegraph.Node
@@ -47,8 +48,8 @@ class GameFlowController extends Node<GameFlowController> {
 		@Override
 		void init() {
 
-			ball = node.scene.findByType(Ball)
-			bricks = node.scene.findByType(Bricks)
+			ball = node.scene.find(Ball)
+			bricks = node.scene.find(Bricks)
 		}
 
 		@Override
@@ -63,7 +64,7 @@ class GameFlowController extends Node<GameFlowController> {
 				}
 				ball.setPosition(0f, 0f)
 				var randomDirectionRadians = Math.toRadians((Math.random() * 90) + 225) as float
-				ball.vector.set(Math.cos(randomDirectionRadians), Math.sin(randomDirectionRadians))
+				ball.find(MovementNode).vector.set(Math.cos(randomDirectionRadians), Math.sin(randomDirectionRadians))
 				gameStarted = true
 			}
 		}

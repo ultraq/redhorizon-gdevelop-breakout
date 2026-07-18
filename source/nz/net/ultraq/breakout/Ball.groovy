@@ -18,6 +18,7 @@ package nz.net.ultraq.breakout
 
 import nz.net.ultraq.redhorizon.engine.physics.BoxCollider
 import nz.net.ultraq.redhorizon.engine.physics.CollisionStartEvent
+import nz.net.ultraq.redhorizon.engine.physics.MovementNode
 import nz.net.ultraq.redhorizon.engine.scripts.Script
 import nz.net.ultraq.redhorizon.engine.scripts.ScriptNode
 import nz.net.ultraq.redhorizon.graphics.Sprite
@@ -25,7 +26,6 @@ import nz.net.ultraq.redhorizon.scenegraph.Node
 import nz.net.ultraq.redhorizon.scenegraph.Scene
 import static nz.net.ultraq.redhorizon.runtime.ScopedValues.RESOURCE_MANAGER
 
-import org.joml.Vector2f
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -37,12 +37,10 @@ import org.slf4j.LoggerFactory
 class Ball extends Node<Ball> {
 
 	private static final Logger logger = LoggerFactory.getLogger(Ball)
-
-	static final float SPEED = 600f
+	static final float speed = 600f
 
 	final float width
 	final float height
-	final Vector2f vector = new Vector2f()
 
 	Ball() {
 
@@ -52,6 +50,7 @@ class Ball extends Node<Ball> {
 		width = ballImage.width
 		height = ballImage.height
 		addChild(new Sprite(ballImage))
+		addChild(new MovementNode(speed))
 		addChild(new BoxCollider(width, height))
 		addChild(new ScriptNode(BallScript))
 	}
@@ -64,6 +63,7 @@ class Ball extends Node<Ball> {
 		private Scene scene
 		private float halfWidth
 		private float halfHeight
+		private MovementNode movement
 
 		@Override
 		void init() {
@@ -71,8 +71,9 @@ class Ball extends Node<Ball> {
 			scene = node.scene
 			halfWidth = node.width / 2f as float
 			halfHeight = node.height / 2f as float
+			movement = node.find(MovementNode)
 
-			node.findByType(BoxCollider).on(CollisionStartEvent) { event ->
+			node.find(BoxCollider).on(CollisionStartEvent) { event ->
 				var otherCollider = event.otherCollider()
 				var otherObject = otherCollider.parent
 				logger.debug('Collision between ball and {}', otherObject.name)
@@ -81,10 +82,10 @@ class Ball extends Node<Ball> {
 				if (otherObject instanceof ScreenEdges) {
 					// TODO: Lose a life when colliding with the bottom edge
 					if (otherCollider.name == 'Top edge' || otherCollider.name == 'Bottom edge') {
-						node.vector.y *= -1f
+						movement.vector.y *= -1f
 					}
 					else if (otherCollider.name == 'Left edge' || otherCollider.name == 'Right edge') {
-						node.vector.x *= -1f
+						movement.vector.x *= -1f
 					}
 				}
 
@@ -94,14 +95,14 @@ class Ball extends Node<Ball> {
 					var ballPosition = node.position
 					var otherBounds = ((BoxCollider)otherCollider).bounds
 
-					if ((ballPosition.x() < otherBounds.minX && node.vector.x > 0) ||
-						(ballPosition.x() > otherBounds.maxX && node.vector.x < 0)) {
-						node.vector.x *= -1f
+					if ((ballPosition.x() < otherBounds.minX && movement.vector.x > 0) ||
+						(ballPosition.x() > otherBounds.maxX && movement.vector.x < 0)) {
+						movement.vector.x *= -1f
 						logger.debug("Bounce horizontal")
 					}
-					if ((ballPosition.y() < otherBounds.minY && node.vector.y > 0) ||
-						(ballPosition.y() > otherBounds.maxY && node.vector.y < 0)) {
-						node.vector.y *= -1f
+					if ((ballPosition.y() < otherBounds.minY && movement.vector.y > 0) ||
+						(ballPosition.y() > otherBounds.maxY && movement.vector.y < 0)) {
+						movement.vector.y *= -1f
 						logger.debug("Bounce vertical")
 					}
 
@@ -116,15 +117,6 @@ class Ball extends Node<Ball> {
 				else {
 					logger.debug("Unhandled collision with {}", otherObject)
 				}
-			}
-		}
-
-		@Override
-		void update(float delta) {
-
-			// Move the ball along its current trajectory
-			if (node.vector) {
-				node.translate(node.vector.x() * SPEED * delta as float, node.vector.y() * SPEED * delta as float)
 			}
 		}
 	}
