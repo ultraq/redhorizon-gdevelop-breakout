@@ -63,15 +63,13 @@ class Paddle extends Node<Paddle> {
 	 */
 	static class PaddleScript extends Script<Paddle> {
 
-		private float leftBounds
-		private float rightBounds
 		private MovementNode movement
+		private boolean hittingLeftEdge = false
+		private boolean hittingRightEdge = false
 
 		@Override
 		void init() {
 
-			leftBounds = -((Breakout.WIDTH / 2f) - (node.width / 2f)) as float
-			rightBounds = -leftBounds
 			movement = node.find(MovementNode)
 
 			node.find(BoxCollider).on(CollisionStartEvent) { event ->
@@ -81,6 +79,12 @@ class Paddle extends Node<Paddle> {
 
 				// Prevent the paddle from moving outside of the screen
 				if (otherObject instanceof ScreenEdges) {
+					if (otherCollider.name == 'Left edge') {
+						hittingLeftEdge = true
+					}
+					else if (otherCollider.name == 'Right edge') {
+						hittingRightEdge = true
+					}
 					movement.vector.x = 0
 				}
 			}
@@ -89,11 +93,13 @@ class Paddle extends Node<Paddle> {
 		@Override
 		void update(float delta) {
 
-			if (input.keyPressed(GLFW_KEY_LEFT) || input.keyPressed(GLFW_KEY_A)) {
+			if (!hittingLeftEdge && (input.keyPressed(GLFW_KEY_LEFT) || input.keyPressed(GLFW_KEY_A))) {
 				movement.vector.x = -1f
+				hittingRightEdge = false
 			}
-			else if (input.keyPressed(GLFW_KEY_RIGHT) || input.keyPressed(GLFW_KEY_D)) {
+			else if (!hittingRightEdge && (input.keyPressed(GLFW_KEY_RIGHT) || input.keyPressed(GLFW_KEY_D))) {
 				movement.vector.x = 1f
+				hittingLeftEdge = false
 			}
 			else {
 				movement.vector.x = 0f
