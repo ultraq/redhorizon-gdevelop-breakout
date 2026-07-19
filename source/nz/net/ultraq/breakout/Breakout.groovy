@@ -19,6 +19,7 @@ package nz.net.ultraq.breakout
 import nz.net.ultraq.redhorizon.graphics.Colour
 import nz.net.ultraq.redhorizon.runtime.Application
 import nz.net.ultraq.redhorizon.runtime.Runtime
+import nz.net.ultraq.redhorizon.runtime.utilities.VersionReader
 import nz.net.ultraq.redhorizon.scenegraph.Scene
 
 import picocli.CommandLine
@@ -46,7 +47,7 @@ class Breakout extends Application implements Callable<Integer> {
 	 */
 	Breakout() {
 
-		super('Breakout', '0.1.0-dev')
+		super('Breakout', new VersionReader('breakout.properties').read())
 	}
 
 	@Override

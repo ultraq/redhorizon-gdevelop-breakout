@@ -41,6 +41,7 @@ configure {
 				implementation 'org.joml:joml-primitives:1.10.0'
 			}
 			.expandExtensionModuleVersion()
+			.expand('**/*.properties', [version: version])
 }
 
 configurations.configureEach {
