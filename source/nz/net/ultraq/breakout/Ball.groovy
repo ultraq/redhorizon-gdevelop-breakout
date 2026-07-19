@@ -16,6 +16,7 @@
 
 package nz.net.ultraq.breakout
 
+import nz.net.ultraq.redhorizon.audio.Sound
 import nz.net.ultraq.redhorizon.engine.physics.BoxCollider
 import nz.net.ultraq.redhorizon.engine.physics.CollisionStartEvent
 import nz.net.ultraq.redhorizon.engine.physics.MovementNode
@@ -37,7 +38,9 @@ import org.slf4j.LoggerFactory
 class Ball extends Node<Ball> {
 
 	private static final Logger logger = LoggerFactory.getLogger(Ball)
-	static final float speed = 600f
+	private static final String softImpactSoundName = 'Soft impact sound'
+	private static final String brickImpactSoundName = 'Brick impact sound'
+	static final float speed = 300f
 
 	final float width
 	final float height
@@ -52,6 +55,10 @@ class Ball extends Node<Ball> {
 		addChild(new Sprite(ballImage))
 		addChild(new MovementNode(speed))
 		addChild(new BoxCollider(width, height))
+		addChild(resourceManager.loadSound('impactSoft_medium_004.ogg')
+			.withName(softImpactSoundName))
+		addChild(resourceManager.loadSound('impactMining_000.ogg')
+			.withName(brickImpactSoundName))
 		addChild(new ScriptNode(BallScript))
 	}
 
@@ -61,17 +68,15 @@ class Ball extends Node<Ball> {
 	static class BallScript extends Script<Ball> {
 
 		private Scene scene
-		private float halfWidth
-		private float halfHeight
-		private MovementNode movement
 
 		@Override
 		void init() {
 
 			scene = node.scene
-			halfWidth = node.width / 2f as float
-			halfHeight = node.height / 2f as float
-			movement = node.find(MovementNode)
+
+			var movement = node.find(MovementNode)
+			var softImpactSound = node.<Sound> find(softImpactSoundName)
+			var brickImpactSound = node.<Sound> find(brickImpactSoundName)
 
 			node.find(BoxCollider).on(CollisionStartEvent) { event ->
 				var otherCollider = event.otherCollider()
@@ -87,6 +92,7 @@ class Ball extends Node<Ball> {
 					else if (otherCollider.name == 'Left edge' || otherCollider.name == 'Right edge') {
 						movement.vector.x *= -1f
 					}
+					softImpactSound.play()
 				}
 
 				else if (otherObject instanceof Paddle || otherObject instanceof Brick) {
@@ -106,7 +112,11 @@ class Ball extends Node<Ball> {
 						logger.debug("Bounce vertical")
 					}
 
-					if (otherObject instanceof Brick) {
+					if (otherObject instanceof Paddle) {
+						softImpactSound.play()
+					}
+					else if (otherObject instanceof Brick) {
+						brickImpactSound.play()
 						scene.queueUpdate { ->
 							otherObject.remove()
 						}

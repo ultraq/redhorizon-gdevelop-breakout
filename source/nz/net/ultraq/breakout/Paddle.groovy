@@ -37,7 +37,7 @@ import static org.lwjgl.glfw.GLFW.*
 class Paddle extends Node<Paddle> {
 
 	private static final Logger logger = LoggerFactory.getLogger(Paddle)
-	static final float speed = 300f
+	static final float speed = 400f
 
 	private final float width
 	private final float height

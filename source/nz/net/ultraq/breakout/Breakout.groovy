@@ -54,6 +54,7 @@ class Breakout extends Application implements Callable<Integer> {
 	Integer call() {
 
 		return new Runtime(this)
+			.withAudioMasterVolume(0.5f)
 			.withWindowBackgroundColour(Colour.fromHexCode('#344055'))
 			.withWindowWidth(WIDTH)
 			.withWindowHeight(HEIGHT)
