@@ -117,6 +117,7 @@ class Ball extends Node<Ball> {
 					}
 					else if (otherObject instanceof Brick) {
 						brickImpactSound.play()
+						otherObject.disable()
 						scene.queueUpdate { ->
 							otherObject.remove()
 						}
