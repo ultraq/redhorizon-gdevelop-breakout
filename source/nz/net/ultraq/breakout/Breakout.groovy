@@ -16,32 +16,29 @@
 
 package nz.net.ultraq.breakout
 
+import nz.net.ultraq.redhorizon.graphics.Colour
 import nz.net.ultraq.redhorizon.runtime.Application
 import nz.net.ultraq.redhorizon.runtime.Runtime
 import nz.net.ultraq.redhorizon.scenegraph.Scene
+
+import picocli.CommandLine
+import picocli.CommandLine.Command
+
+import java.util.concurrent.Callable
 
 /**
  * Entry point to the Breakout game.
  *
  * @author Emanuel Rabina
  */
-class Breakout extends Application {
+@Command(name = 'breakout')
+class Breakout extends Application implements Callable<Integer> {
 
 	public static final int WIDTH = 960
 	public static final int HEIGHT = 540
 
 	static void main(String[] args) {
-
-		System.exit(new Runtime(new Breakout()).execute(
-			'--window-background-colour=#344055',
-			"--window-width=${WIDTH}",
-			"--window-height=${HEIGHT}",
-			"--framebuffer-width=${WIDTH * 2}",
-			"--framebuffer-height=${HEIGHT * 2}",
-			'--simulation-update-frequency=120',
-			'--resource-manager-path-prefix=nz/net/ultraq/breakout/assets',
-			*args
-		))
+		System.exit(new CommandLine(new Breakout()).execute(args))
 	}
 
 	/**
@@ -50,6 +47,19 @@ class Breakout extends Application {
 	Breakout() {
 
 		super('Breakout', '0.1.0-dev')
+	}
+
+	@Override
+	Integer call() {
+
+		return new Runtime(this)
+			.withWindowBackgroundColour(Colour.fromHexCode('#344055'))
+			.withWindowWidth(WIDTH)
+			.withWindowHeight(HEIGHT)
+			.withFramebufferWidth(WIDTH * 2)
+			.withFramebufferHeight(HEIGHT * 2)
+			.withResourceManagerPathPrefix('nz/net/ultraq/breakout/assets')
+			.execute()
 	}
 
 	@Override
